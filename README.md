@@ -4,7 +4,7 @@
     </a>
     <br>
     <a href="https://filamentphp.com" target="_blank">
-        <img src="https://filamentphp.com/images/logo.svg" width="300" alt="Filament Logo">
+        <img src="[https://filamentphp.com/images/logo.svg](https://filamentphp.com/)" width="300" alt="Filament Logo">
     </a>
 </p>
 
