@@ -10,10 +10,6 @@ class Order extends Model
 
     protected $fillable = ['customer_name', 'customer_email', 'customer_phone', 'total_price', 'payment_method_id','order_id', 'product_id', 'quantity', 'unit_price', 'discounted_price','notes'];
 
-    public function items()
-    {
-        return $this->hasMany(OrderItem::class);
-    }
     public function product()
     {
         return $this->belongsTo(Product::class);
