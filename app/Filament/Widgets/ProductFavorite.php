@@ -11,25 +11,58 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ImageColumn;
 use App\Models\Discount;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
+use Illuminate\Support\Facades\DB;
 
 class ProductFavorite extends BaseWidget
 {
-    protected static ?int $sort = 4;
-    protected int | string | array $columnSpan = 'height'; 
+protected static ?string $heading = '⭐ Product Favorite';
+protected static ?int $sort = 5;
+protected int | string | array $columnSpan = 'height'; 
+
+protected function getTableQuery(): Builder
+{
+    return Product::query()
+        ->join('orders', 'products.id', '=', 'orders.product_id')
+        ->selectRaw('products.id, products.name, products.stock, products.price, products.images, SUM(orders.quantity) as total_order')
+        ->groupBy('products.id', 'products.name', 'products.stock', 'products.price', 'products.images')
+        ->orderByDesc('total_order');
+}
 
 
-    protected function getTableQuery(): Builder|Relation|null
-    {
-        return Product::query()->withCount('productRedeems');
-    }
-    protected function getTableColumns(): array
-    {
-        return [
-            ImageColumn::make('images')->label('Images'),
-            TextColumn::make('name')->label('Nama Produk')->sortable()->searchable(),
-            TextColumn::make('stock')->label('Stok')->sortable(),
-            TextColumn::make('price')->label('Harga')
-                ->getStateUsing(fn ($record) => 'Rp ' . number_format($record->price, 0, ',', '.')),
-        ];
-    }
+protected function getTableColumns(): array
+{
+    return [
+        ImageColumn::make('images')
+            ->label('Gambar')
+            ->circular()
+            ->size(40),
+
+        TextColumn::make('name')
+            ->label('Product name')
+            ->sortable()
+            ->searchable(),
+
+        TextColumn::make('price')
+            ->label('Price')
+            ->getStateUsing(fn ($record) => 'Rp ' . number_format($record->price, 0, ',', '.')),
+
+        TextColumn::make('total_order')
+            ->label('Total Ordered')
+            ->sortable()
+            ->color('primary')
+            ->weight('bold')
+            ->badge(),
+
+    ];
+}
+
+protected function isTablePaginationEnabled(): bool
+{
+    return true;
+}
+
+protected function getTableRecordsPerPageSelectOptions(): array
+{
+    return [5, 10, 25, 50, 100];
+}
 }

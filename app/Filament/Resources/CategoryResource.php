@@ -7,7 +7,7 @@ use App\Models\Category;
 use Filament\Forms;
 use Filament\Resources\Resource;
 use Filament\Tables;
-
+use Filament\Tables\Actions\ActionGroup;
 class CategoryResource extends Resource
 {
     protected static ?string $navigationIcon = 'heroicon-o-squares-2x2';
@@ -32,5 +32,9 @@ class CategoryResource extends Resource
         return [
             'index' => Pages\ListCategories::route('/'),
         ];
+    }
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
     }
 }

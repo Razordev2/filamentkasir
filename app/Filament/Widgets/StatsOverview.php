@@ -31,22 +31,22 @@ class StatsOverview extends BaseWidget
         
     
         return [             
-            Stat::make('📦 Total Produk', Product::count())
-            ->description('Jumlah seluruh produk')
+            Stat::make('📦 Total Products', Product::count())
+            ->description('Total number of products')
             ->descriptionIcon('heroicon-o-cube')
             ->color('success'),
 
-            Stat::make('🔥 Produk Terjual', Order::count())
-            ->description('Total produk yang telah terjual')
+            Stat::make('🔥 Products Sold', Order::count())
+            ->description('Total products sold')
             ->descriptionIcon('heroicon-o-fire')
             ->color('primary'), 
 
-            Stat::make('💸 Omset', 'Rp ' .  number_format(Order::sum('total_price'), 0, ',', '.'))->description('Total Pemasukan')
+            Stat::make('💸 Omset', 'Rp ' .  number_format(Order::sum('total_price'), 0, ',', '.'))->description('Total Income')
                 ->descriptionIcon('heroicon-o-chevron-double-up')
                 ->color('success'),
 
-            Stat::make('📥​Pengeluaran', 'Rp ' . number_format(Pengeluaran::sum('amount'), 0, ',', '.'))
-            ->description('Total Pengeluaran')
+            Stat::make('📥​Expenses', 'Rp ' . number_format(Pengeluaran::sum('amount'), 0, ',', '.'))
+            ->description('Total Expenditure')
             ->descriptionIcon('heroicon-o-chevron-double-down')
             ->color('primary'),     
         ];

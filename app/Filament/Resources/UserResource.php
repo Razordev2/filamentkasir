@@ -16,13 +16,13 @@ use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Actions\DeleteAction;
 use Spatie\Permission\Models\Role;
 use App\Filament\Resources\UserResource\Pages\ListUsers;
-
+use Filament\Tables\Actions\ActionGroup;
 class UserResource extends Resource
 {
     protected static ?string $model = User::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-users';
-    protected static ?string $navigationGroup = 'Management Account'; 
+    protected static ?string $navigationGroup = 'Filament Shield';  
     protected static ?string $navigationLabel = 'Users';
 
     public static function form(Form $form): Form
@@ -55,31 +55,19 @@ class UserResource extends Resource
                     ->saveRelationshipsUsing(fn (User $record, array $state) => $record->syncRoles($state)), // Simpan Role
             ]);
     }
-    public static function getNavigationItems(): array
-    {
-        if (auth()->user()->hasRole('super_admin')) {
-            return [
-                NavigationItem::make()
-                    ->label('Management Users')
-                    ->icon('heroicon-o-users')
-                    ->url(static::getUrl('index'))
-                    ->visible(fn () => auth()->user()->hasRole('super_admin')),
-            ];
-        }
-    
-        return [];
-    }
     public static function table(Table $table): Table
     {
         return $table
             ->columns([
-                TextColumn::make('name')->sortable()->searchable(),
-                TextColumn::make('email')->sortable()->searchable(),
+                TextColumn::make('name')->sortable()->searchable()->badge(),
+                TextColumn::make('email')->sortable()->searchable()->badge(),
                 TextColumn::make('roles.name')->label('Role')->sortable()->badge(),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                ActionGroup::make([
+                    Tables\Actions\EditAction::make(),
+                    Tables\Actions\DeleteAction::make(),
+                ])->tooltip('Actions'),
             ])
             ->bulkActions([
                 Tables\Actions\DeleteBulkAction::make(),
@@ -91,6 +79,10 @@ class UserResource extends Resource
         return [
             'index' => ListUsers::route('/'),
         ];
+    }
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
     }
 }
 

@@ -11,7 +11,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\DatePicker;
-
+use Filament\Tables\Actions\ActionGroup;
 class DiscountResource extends Resource
 {
     protected static ?string $navigationIcon = 'heroicon-o-ticket';
@@ -68,8 +68,10 @@ class DiscountResource extends Resource
             ])
             ->filters([])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                ActionGroup::make([
+                    Tables\Actions\EditAction::make(),
+                    Tables\Actions\DeleteAction::make(),
+                ])->tooltip('Actions'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -96,5 +98,9 @@ class DiscountResource extends Resource
             $discount->decrement('quota', 1);
         }
         return $data;
+    }
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
     }
 }

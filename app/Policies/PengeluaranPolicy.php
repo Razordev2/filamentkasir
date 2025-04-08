@@ -3,10 +3,10 @@
 namespace App\Policies;
 
 use App\Models\User;
-use App\Models\ProductRedeem;
+use App\Models\Pengeluaran;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
-class ProductRedeemPolicy
+class PengeluaranPolicy
 {
     use HandlesAuthorization;
 
@@ -15,15 +15,15 @@ class ProductRedeemPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->can('view_any_product::redeem');
+        return $user->can('view_any_pengeluaran');
     }
 
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, ProductRedeem $productRedeem): bool
+    public function view(User $user, Pengeluaran $pengeluaran): bool
     {
-        return $user->can('view_product::redeem');
+        return $user->can('view_pengeluaran');
     }
 
     /**
@@ -31,23 +31,23 @@ class ProductRedeemPolicy
      */
     public function create(User $user): bool
     {
-        return $user->can('create_product::redeem');
+        return $user->can('create_pengeluaran');
     }
 
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, ProductRedeem $productRedeem): bool
+    public function update(User $user, Pengeluaran $pengeluaran): bool
     {
-        return $user->can('update_product::redeem');
+        return $user->can('update_pengeluaran');
     }
 
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, ProductRedeem $productRedeem): bool
+    public function delete(User $user, Pengeluaran $pengeluaran): bool
     {
-        return $user->can('delete_product::redeem');
+        return $user->can('delete_pengeluaran');
     }
 
     /**
@@ -55,15 +55,15 @@ class ProductRedeemPolicy
      */
     public function deleteAny(User $user): bool
     {
-        return $user->can('delete_any_product::redeem');
+        return $user->can('delete_any_pengeluaran');
     }
 
     /**
      * Determine whether the user can permanently delete.
      */
-    public function forceDelete(User $user, ProductRedeem $productRedeem): bool
+    public function forceDelete(User $user, Pengeluaran $pengeluaran): bool
     {
-        return $user->can('force_delete_product::redeem');
+        return $user->can('force_delete_pengeluaran');
     }
 
     /**
@@ -71,15 +71,15 @@ class ProductRedeemPolicy
      */
     public function forceDeleteAny(User $user): bool
     {
-        return $user->can('force_delete_any_product::redeem');
+        return $user->can('force_delete_any_pengeluaran');
     }
 
     /**
      * Determine whether the user can restore.
      */
-    public function restore(User $user, ProductRedeem $productRedeem): bool
+    public function restore(User $user, Pengeluaran $pengeluaran): bool
     {
-        return $user->can('restore_product::redeem');
+        return $user->can('restore_pengeluaran');
     }
 
     /**
@@ -87,15 +87,15 @@ class ProductRedeemPolicy
      */
     public function restoreAny(User $user): bool
     {
-        return $user->can('restore_any_product::redeem');
+        return $user->can('restore_any_pengeluaran');
     }
 
     /**
      * Determine whether the user can replicate.
      */
-    public function replicate(User $user, ProductRedeem $productRedeem): bool
+    public function replicate(User $user, Pengeluaran $pengeluaran): bool
     {
-        return $user->can('replicate_product::redeem');
+        return $user->can('replicate_pengeluaran');
     }
 
     /**
@@ -103,6 +103,6 @@ class ProductRedeemPolicy
      */
     public function reorder(User $user): bool
     {
-        return $user->can('reorder_product::redeem');
+        return $user->can('reorder_pengeluaran');
     }
 }

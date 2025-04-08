@@ -9,7 +9,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-
+use Filament\Tables\Actions\ActionGroup;
 class PengeluaranResource extends Resource
 {
     protected static ?string $model = Pengeluaran::class;
@@ -41,16 +41,19 @@ class PengeluaranResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('name')->label('Nama Pengeluaran')->searchable(),
+                Tables\Columns\TextColumn::make('name')->label('Name')->searchable(),
                 Tables\Columns\TextColumn::make('notes')->label('Catatan')->limit(50),
-                Tables\Columns\TextColumn::make('dateorder')->label('Tanggal Order')->date(),
+                Tables\Columns\TextColumn::make('dateorder')->label('Date')->date(),
                 Tables\Columns\TextColumn::make('amount')->label('Jumlah')->sortable(),
             ])
             ->filters([
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                ActionGroup::make([
+                    Tables\Actions\EditAction::make(),
+                    Tables\Actions\DeleteAction::make(),
+                ])->tooltip('Actions'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -71,5 +74,9 @@ class PengeluaranResource extends Resource
         return [
             'index' => Pages\ListPengeluarans::route('/'),
         ];
+    }
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
     }
 }

@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->text('notes')->nullable();
-            $table->timestamp('dateorder')->nullable(); 
+            $table->timestamp('dateorder'); 
             $table->integer('amount');
             $table->timestamps();
         });

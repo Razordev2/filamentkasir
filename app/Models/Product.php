@@ -25,9 +25,6 @@ class Product extends Model
     {
         return $this->discount ? $this->discount->getDiscountedPrice($this->price) : $this->price;
     }    
-    public function productRedeems(): HasMany
-    {
-        return $this->hasMany(ProductRedeem::class);
-    }
+
 }
 

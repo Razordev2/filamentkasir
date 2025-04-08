@@ -11,7 +11,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
-
+use Filament\Tables\Actions\ActionGroup;
 class ProductResource extends Resource
 {
     protected static ?string $navigationIcon = 'heroicon-o-archive-box';
@@ -34,7 +34,6 @@ class ProductResource extends Resource
                     ->options(Discount::where('quota', '>', 0)->pluck('code', 'code')->toArray())
                     ->searchable()
                     ->nullable(),
-                TextInput::make('points_required')->numeric()->required(),
                 Forms\Components\FileUpload::make('images')
                     ->label('Images')
                     ->directory('images/gallery')
@@ -54,15 +53,16 @@ class ProductResource extends Resource
                 Tables\Columns\ImageColumn::make('images')->label('Images'),
                 Tables\Columns\TextColumn::make('name')->label('Nama'),
                 Tables\Columns\TextColumn::make('category.name')->label('Kategori'),
-                Tables\Columns\TextColumn::make('stock')->label('Stok'),
+                Tables\Columns\TextColumn::make('stock')->label('Stok')->badge(),
                 Tables\Columns\TextColumn::make('discount.code')->label('Kode Voucher')->sortable()->searchable(),
                 Tables\Columns\TextColumn::make('price')->label('Harga')->sortable()
                     ->getStateUsing(fn($record) => 'Rp ' . number_format($record->price, 2, ',', '.')),
-                Tables\Columns\TextColumn::make('points_required')->label('Point Produk'),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                ActionGroup::make([
+                    Tables\Actions\EditAction::make(),
+                    Tables\Actions\DeleteAction::make(),
+                ])->tooltip('Actions'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -103,5 +103,9 @@ class ProductResource extends Resource
         return [
             'index' => Pages\ListProducts::route('/'),
         ];
+    }
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
     }
 }

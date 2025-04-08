@@ -12,7 +12,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-
+use Filament\Tables\Actions\ActionGroup;
 class PaymentMethodResource extends Resource
 {
     protected static ?string $model = PaymentMethod::class;
@@ -23,7 +23,7 @@ class PaymentMethodResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('paymentmethods')->required(),
+                Forms\Components\TextInput::make('paymentmethods')->required()->columnSpan('full'),
             ]);
     }
 
@@ -37,8 +37,10 @@ class PaymentMethodResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                ActionGroup::make([
+                    Tables\Actions\EditAction::make(),
+                    Tables\Actions\DeleteAction::make(),
+                ])->tooltip('Actions'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -58,8 +60,14 @@ class PaymentMethodResource extends Resource
     {
         return [
             'index' => Pages\ListPaymentMethods::route('/'),
-            'create' => Pages\CreatePaymentMethod::route('/create'),
-            'edit' => Pages\EditPaymentMethod::route('/{record}/edit'),
         ];
+    }
+    public static function canCreate(): bool
+    {
+        return PaymentMethod::count() === 0;
+    }
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
     }
 }

@@ -17,7 +17,6 @@
                 $table->string('name');
                 $table->string('images');
                 $table->text('description')->nullable();
-                $table->integer('points_required');
                 $table->decimal('price', 10, 2);
                 $table->integer('stock');
                 $table->timestamps();

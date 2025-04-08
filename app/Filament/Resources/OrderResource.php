@@ -26,19 +26,24 @@ class OrderResource extends Resource
     {
         return $form->schema([
             Card::make()->schema([
-                Grid::make(2)
-                    ->schema([
-                        Section::make('Info Utama')->schema([
-                            Forms\Components\TextInput::make('customer_name')->required(),
-                            Forms\Components\TextInput::make('customer_email')->email(),
-                            Forms\Components\TextInput::make('customer_phone'),
-                            Forms\Components\Textarea::make('notes'),
-                        ]),
+                Grid::make(2)->schema([
+                    Section::make('Info Utama')->schema([
+                        Forms\Components\TextInput::make('customer_name')->required(),
+                        Forms\Components\TextInput::make('customer_email')->email(),
+                        Forms\Components\TextInput::make('customer_phone'),
+                        Forms\Components\Textarea::make('notes'),
                     ]),
+                ]),
                 Section::make('Info Pesanan')->schema([
                     Forms\Components\Select::make('product_id')
                         ->label('Produk')
-                        ->options(Product::where('stock', '>', 0)->pluck('name', 'id'))
+                        ->options(function () {
+                            return Product::where('stock', '>', 0)
+                                ->get()
+                                ->mapWithKeys(fn ($product) => [
+                                    $product->id => "{$product->name} (Sisa: {$product->stock})"
+                                ]);
+                        })                                
                         ->searchable()
                         ->required()
                         ->reactive()
@@ -68,7 +73,7 @@ class OrderResource extends Resource
                         ->required()
                         ->minValue(1)
                         ->reactive()
-                        ->afterStateUpdated(fn ($state, callable $get, callable $set) => 
+                        ->afterStateUpdated(fn ($state, callable $get, callable $set) =>
                             $set('total_price', $get('discounted_price') * $state)
                         ),
                 ]),
@@ -78,9 +83,7 @@ class OrderResource extends Resource
                         ->options(PaymentMethod::all()->pluck('paymentmethods', 'id'))
                         ->searchable()
                         ->required(),
-                    Forms\Components\TextInput::make('total_price')
-                        ->numeric()
-                        ->required()
+                    Forms\Components\TextInput::make('total_price')->numeric()->required()
                 ]),
             ]),
         ]);
@@ -90,24 +93,21 @@ class OrderResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('customer_name')->label('Pelanggan')->weight('bold'),
-                Tables\Columns\TextColumn::make('product.name')->label('Produk'),
-                Tables\Columns\TextColumn::make('quantity')->label('Jumlah')->badge(),
-                Tables\Columns\TextColumn::make('paymentMethod.paymentmethods')->label('Metode Pembayaran')->badge(),
-                Tables\Columns\TextColumn::make('total_price')->label('Total Harga')->money('IDR'),
+                Tables\Columns\TextColumn::make('customer_name')->label('Pelanggan')->searchable()->weight('bold'),
+                Tables\Columns\TextColumn::make('product.name')->searchable()->label('Produk'),
+                Tables\Columns\TextColumn::make('quantity')->searchable()->label('Jumlah')->badge(),
+                Tables\Columns\TextColumn::make('paymentMethod.paymentmethods')->searchable()->label('Metode Pembayaran')->badge(),
+                Tables\Columns\TextColumn::make('total_price')->label('Total Harga')->searchable()->money('IDR'),
             ])
+            ->emptyStateHeading('Belum ada pesanan')
+            ->emptyStateIcon('heroicon-o-archive-box-x-mark')
+            ->emptyStateDescription('Tambahkan pesanan Terlebih Dahulu')
             ->actions([
                 ActionGroup::make([
                     Tables\Actions\EditAction::make(),
                     Tables\Actions\DeleteAction::make(),
-                    Tables\Actions\Action::make('confirm')
-                        ->label('Konfirmasi')
-                        ->icon('heroicon-o-check')
-                        ->color('success')
-                        ->action(fn ($record) => $record->update(['status' => 'confirmed']))
-                        ->visible(fn ($record) => $record->status !== 'confirmed'),
                 ])->tooltip('Actions'),
-            ])            
+            ])
             ->filters([])
             ->bulkActions([]);
     }
@@ -121,6 +121,12 @@ class OrderResource extends Resource
     {
         return [
             'index' => Pages\ListOrders::route('/'),
+            'create' => Pages\CreateOrder::route('/create'),
+            'edit' => Pages\EditOrder::route('/{record}/edit'),
         ];
+    }
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::count();
     }
 }

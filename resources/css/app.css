@@ -15,3 +15,7 @@
 .filament-tables-card:hover {
     transform: scale(1.05);
 }
+.filament-dark-mode-toggle {
+    display: none !important;
+}
+
