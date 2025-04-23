@@ -10,7 +10,7 @@ use App\Models\Discount;
 use App\Models\Order;
 use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
-
+use Illuminate\Support\Facades\Auth;
 class StatsOverview extends BaseWidget
 {
     public $startDate;
@@ -52,4 +52,5 @@ class StatsOverview extends BaseWidget
         ];
         
     }
+    
 }

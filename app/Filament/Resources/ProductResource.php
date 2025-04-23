@@ -12,6 +12,7 @@ use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Filament\Tables\Actions\ActionGroup;
+
 class ProductResource extends Resource
 {
     protected static ?string $navigationIcon = 'heroicon-o-archive-box';
@@ -26,14 +27,18 @@ class ProductResource extends Resource
                 Select::make('category_id')
                     ->relationship('category', 'name')
                     ->required(),
-                TextInput::make('price')->required()->numeric()
-                ->minValue(0),
+                TextInput::make('price')->required()->numeric()->minValue(0),
                 TextInput::make('stock')->required()->numeric(),
                 Select::make('discount_code')
-                    ->label('Kode Voucher')
-                    ->options(Discount::where('quota', '>', 0)->pluck('code', 'code')->toArray())
-                    ->searchable()
-                    ->nullable(),
+                    ->label('Diskon')
+                    ->options(function() {
+                        return \App\Models\Discount::valid()
+                            ->where('end_date', '>=', now()) 
+                            ->pluck('code', 'code')
+                            ->toArray();
+                    })
+                    ->nullable()
+                    ->searchable(),
                 Forms\Components\FileUpload::make('images')
                     ->label('Images')
                     ->directory('images/gallery')
@@ -73,28 +78,29 @@ class ProductResource extends Resource
 
     public static function mutateFormDataBeforeCreate(array $data): array
     {
+        // Memeriksa jika kode diskon kadaluarsa dan menghapusnya
         return self::handleDiscountUsage($data);
     }
     
     public static function mutateFormDataBeforeUpdate(array $data, Product $record): array
     {
+        // Memeriksa jika kode diskon kadaluarsa dan menghapusnya
         return self::handleDiscountUsage($data, $record);
     }
-    
-    protected static function handleDiscountUsage(array $data): array
+
+    public static function handleDiscountUsage(array $data, Product $record = null): array
     {
-        if (!empty($data['discount_code'])) {
+        // Memeriksa jika kode diskon kadaluarsa
+        if (isset($data['discount_code'])) {
             $discount = Discount::where('code', $data['discount_code'])->first();
-
-            if (!$discount || $discount->quota <= 0) { 
-                throw new \Exception('Kode diskon tidak valid atau sudah habis.');
+            if ($discount && $discount->end_date < now()) {
+                // Jika diskon kadaluarsa, hapus kode diskon dari data produk
+                $data['discount_code'] = null;
+                // Menghapus diskon yang kadaluarsa dari database
+                $discount->delete();
             }
-
-            $discount->quota -= 1;
-            $discount->save();
-
-            $data['discounted_price'] = $data['price'] - ($discount->amount ?? 0); 
         }
+
         return $data;
     }
 
@@ -104,6 +110,7 @@ class ProductResource extends Resource
             'index' => Pages\ListProducts::route('/'),
         ];
     }
+
     public static function getNavigationBadge(): ?string
     {
         return static::getModel()::count();

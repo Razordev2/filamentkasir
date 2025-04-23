@@ -13,14 +13,10 @@ return new class extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
-            $table->string('customer_name');
-            $table->string('customer_email')->nullable();
-            $table->string('customer_phone')->nullable();
+            $table->string('customer_name')->nullable();
             $table->decimal('total_price', 10, 2)->default(0);
             $table->unsignedBigInteger('payment_method_id')->nullable();
             $table->foreign('payment_method_id')->references('id')->on('payment_methods')->onDelete('set null');
-            $table->text('notes')->nullable();
-            $table->timestamp('dateorder')->nullable(); 
             $table->foreignId('product_id')->constrained()->onDelete('cascade');
             $table->integer('quantity')->default(0);
             $table->decimal('unit_price', 10, 2)->default(0);

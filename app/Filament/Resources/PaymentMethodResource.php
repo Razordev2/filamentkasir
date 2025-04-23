@@ -16,9 +16,8 @@ use Filament\Tables\Actions\ActionGroup;
 class PaymentMethodResource extends Resource
 {
     protected static ?string $model = PaymentMethod::class;
-
     protected static ?string $navigationIcon = 'heroicon-o-credit-card';
-    protected static ?string $navigationGroup = 'Orders'; 
+    protected static ?string $navigationGroup = 'Payment'; 
     public static function form(Form $form): Form
     {
         return $form

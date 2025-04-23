@@ -16,16 +16,13 @@ class DiscountResource extends Resource
 {
     protected static ?string $navigationIcon = 'heroicon-o-ticket';
     protected static ?string $model = Discount::class;
-    protected static ?string $navigationGroup = 'Management'; 
+    protected static ?string $navigationGroup = 'Management';
     public static function form(Forms\Form $form): Forms\Form
     {
         return $form->schema([
             Select::make('type')
                 ->options([
                     'percentage' => 'Persentase (%)',
-                    'fixed' => 'Potongan Langsung',
-                    'buy1get1' => 'Buy 1 Get 1',
-                    'voucher' => 'Voucher',
                 ])
                 ->required()
                 ->reactive(),
@@ -34,22 +31,29 @@ class DiscountResource extends Resource
                 ->label('Nilai Diskon')
                 ->numeric()
                 ->nullable()
-                ->hidden(fn($get) => $get('type') === 'buy1get1')
-                ->maxValue(100)
+                ->minValue(1)
+                ->maxValue(50)
                 ->required()
-                ->rule('max:100', 'Nilai diskon tidak boleh melebihi 100%'),
+                ->rule('max:50', 'Nilai diskon tidak boleh melebihi 100%'),
 
             TextInput::make('quota')
                 ->label('Kuota')
                 ->numeric()
                 ->minValue(1)
                 ->default(1)
+                ->hidden()
                 ->required(),
 
-            DatePicker::make('expires_at')
-                ->label('Tanggal Kedaluwarsa')
-                ->displayFormat('d-m-Y')
-                ->required(),
+                DatePicker::make('start_date')
+                    ->label('Start Date')
+                    ->required()
+                    ->native(false),
+
+                DatePicker::make('end_date')
+                    ->label('End Date')
+                    ->required()
+                    ->native(false)
+                    ->required(),
         ]);
     }
 
@@ -57,14 +61,21 @@ class DiscountResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('code')->label('Kode Diskon')->sortable()->searchable(),
+                TextColumn::make('code')->label('Kode Diskon')->sortable()->searchable()->badge()->colors(['success']),
                 TextColumn::make('type')->label('Tipe Diskon'),
                 TextColumn::make('value')->label('Nilai Diskon')->sortable(),
-                TextColumn::make('quota')->label('Kuota')->sortable()->badge(),
-                TextColumn::make('expires_at')
-                    ->label('Kedaluwarsa')
-                    ->date('d-m-Y')
-                    ->sortable(),
+                TextColumn::make('start_date')
+                ->label('Start Date')
+                ->date()
+                ->sortable()
+                ->badge()->colors(['success'])
+                ->searchable(),
+            TextColumn::make('end_date')
+                ->label('End Date')
+                ->date()
+                ->badge()->colors(['warning'])
+                ->sortable()
+                ->searchable(),
             ])
             ->filters([])
             ->actions([

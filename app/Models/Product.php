@@ -5,11 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+
 class Product extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'category_id', 'price', 'stock', 'discount_code', 'images','points_required'];
+    protected $fillable = ['name', 'category_id', 'price', 'stock', 'discount_code', 'images', 'points_required'];
+
+    protected $appends = ['discounted_price', 'image_url'];
 
     public function category()
     {
@@ -26,5 +29,18 @@ class Product extends Model
         return $this->discount ? $this->discount->getDiscountedPrice($this->price) : $this->price;
     }    
 
+    public function getImageUrlAttribute()
+    {
+        return asset('storage/' . $this->images);
+    }
+    
+    public function getFormattedPriceAttribute()
+    {
+        return 'Rp ' . number_format($this->price, 2, ',', '.');
+    }
+    public function getFormattedDiscountedPriceAttribute()
+    {
+        return 'Rp ' . number_format($this->discounted_price, 2, ',', '.');
+    }
+    
 }
-

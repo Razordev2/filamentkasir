@@ -39,6 +39,7 @@ class UserPanelProvider extends PanelProvider
             ->login(Login::class)
             ->darkMode(true)
             ->font('Poppins')
+            ->brandLogo(fn () => view('logo'))
             ->colors([
                 'primary' => Color::Indigo,
                 'danger' => Color::Rose,

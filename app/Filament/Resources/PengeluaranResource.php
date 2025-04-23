@@ -23,17 +23,17 @@ class PengeluaranResource extends Resource
             ->schema([
                 Forms\Components\TextInput::make('name')
                     ->required()
-                    ->label('Nama Pengeluaran'),
+                    ->label('Nama Barang'),
                 Forms\Components\Textarea::make('notes')
                     ->nullable()
                     ->label('Catatan'),
                 Forms\Components\DatePicker::make('dateorder')
                     ->required()
-                    ->label('Tanggal Order'),
+                    ->label('Tanggal Restock'),
                 Forms\Components\TextInput::make('amount')
                     ->required()
                     ->numeric()
-                    ->label('Jumlah'),
+                    ->label('harga barang'),
             ]);
     }
 
@@ -41,10 +41,10 @@ class PengeluaranResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('name')->label('Name')->searchable(),
+                Tables\Columns\TextColumn::make('name')->label('Nama barang')->searchable(),
                 Tables\Columns\TextColumn::make('notes')->label('Catatan')->limit(50),
                 Tables\Columns\TextColumn::make('dateorder')->label('Date')->date(),
-                Tables\Columns\TextColumn::make('amount')->label('Jumlah')->sortable(),
+                Tables\Columns\TextColumn::make('amount')->label('Harga Barang')->sortable()->getStateUsing(fn($record) => 'Rp ' . number_format($record->amount, 2, ',', '.')),
             ])
             ->filters([
                 //

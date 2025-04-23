@@ -6,20 +6,21 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    public function up(): void
-    {
-        Schema::create('discounts', function (Blueprint $table) {
-            $table->id();
-            $table->string('code')->unique();
-            $table->enum('type', ['percentage', 'fixed', 'buy1get1', 'voucher']);
-            $table->decimal('value', 10, 2)->nullable();
-            $table->integer('quota')->default(0);
-            $table->timestamp('expires_at')->nullable();
-            $table->timestamps();
-        });        
-    }
-    public function down(): void
-    {
-        Schema::dropIfExists('discounts');
-    }
+public function up(): void
+{
+    Schema::create('discounts', function (Blueprint $table) {
+        $table->id();
+        $table->string('code')->unique();
+        $table->enum('type', ['percentage', 'fixed', 'buy1get1', 'voucher'])->nullable();
+        $table->decimal('value', 10, 2)->nullable();
+        $table->integer('quota')->nullable(0);
+        $table->date('start_date'); 
+        $table->date('end_date');
+        $table->timestamps();
+    });        
+}
+public function down(): void
+{
+    Schema::dropIfExists('discounts');
+}
 };

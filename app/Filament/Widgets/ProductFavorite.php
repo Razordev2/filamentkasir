@@ -33,7 +33,7 @@ protected function getTableColumns(): array
 {
     return [
         ImageColumn::make('images')
-            ->label('Gambar')
+            ->label('Images')
             ->circular()
             ->size(40),
 
@@ -44,6 +44,7 @@ protected function getTableColumns(): array
 
         TextColumn::make('price')
             ->label('Price')
+            ->sortable()
             ->getStateUsing(fn ($record) => 'Rp ' . number_format($record->price, 0, ',', '.')),
 
         TextColumn::make('total_order')

@@ -11,11 +11,12 @@ class Discount extends Model
 {
 use HasFactory;
 
-protected $fillable = ['type', 'value', 'expires_at', 'code', 'quota'];
+protected $fillable = ['type', 'value', 'start_date','end_date', 'code', 'quota'];
 
-protected $casts = [
-    'expires_at' => 'datetime',
-];
+   protected $casts = [
+        'start_date' => 'datetime',
+        'end_date' => 'datetime',
+    ];
 
 protected static function boot()
 {
@@ -26,8 +27,6 @@ protected static function boot()
             $prefix = match ($discount->type) {
                 'percentage' => 'PERC',
                 'fixed' => 'FIXED',
-                'buy1get1' => 'B1G1',
-                'voucher' => 'VCHR',
                 default => 'DISC',
             };
             $discount->code = strtoupper($prefix . '-' . Str::random(6));
@@ -35,20 +34,19 @@ protected static function boot()
     });
 }
 
+
 public function isValid(): bool
 {
-    return $this->quota > 0 && (!$this->expires_at || $this->expires_at->isFuture());
+
+    return now()->between($this->start_date, $this->end_date) && $this->quota > 0;
 }
+
 
 public function getDiscountedPrice($price)
 {
     if ($this->type === 'percentage') {
         return max(0, $price - ($price * $this->value / 100));
     } elseif ($this->type === 'fixed') {
-        return max(0, $price - $this->value);
-    } elseif ($this->type === 'buy1get1') {
-        return $price / 2;
-    } elseif ($this->type === 'voucher') {
         return max(0, $price - $this->value);
     }
     return $price;
@@ -90,4 +88,14 @@ protected static function handleDiscountUsage(array $data, ?Product $record = nu
     
     return $data;
 }
+public function scopeValid($query)
+{
+    return $query->where('start_date', '<=', now())
+            ->where('end_date', '>=', now());
+}
+public function isActive()
+{
+    return now()->between($this->start_date, $this->end_date);
+}
+
 }
