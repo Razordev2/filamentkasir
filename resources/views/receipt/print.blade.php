@@ -52,7 +52,7 @@
         .items-table th {
             border-bottom: 1px solid #ddd;
             text-align: left;
-            padding: 3px 0;
+            padding: 3px 5px;
         }
         .items-table td {
             padding: 3px 0;
@@ -79,7 +79,6 @@
         }
         .receipt-actions {
             text-align: center;
-            background-color: #3b82f6;
             margin-top: 20px;
         }
         .print-btn {
@@ -138,7 +137,7 @@
                 <tr>
                     <th>Produk</th>
                     <th>Qty</th>
-                    <th>Harga</th>
+                    <th>Unit Price</th>
                 </tr>
             </thead>
             <tbody>
@@ -165,7 +164,7 @@
             @endif
             <div class="total-amount">
                 <span>TOTAL:</span>
-                <span>Rp {{ number_format(session('receipt')['total_price'], 0, ',', '.') }}</span>
+            <span>Rp {{ number_format(session('receipt')['total_price'], 0, ',', '.') }}</span>
             </div>
         </div>
         

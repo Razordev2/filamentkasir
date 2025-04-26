@@ -16,7 +16,7 @@ class DiscountResource extends Resource
 {
     protected static ?string $navigationIcon = 'heroicon-o-ticket';
     protected static ?string $model = Discount::class;
-    protected static ?string $navigationGroup = 'Management';
+    protected static ?string $navigationGroup = 'DATA MASTER';
     public static function form(Forms\Form $form): Forms\Form
     {
         return $form->schema([
@@ -114,4 +114,4 @@ class DiscountResource extends Resource
     {
         return static::getModel()::count();
     }
-}
+}   

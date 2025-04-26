@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ProductResource\Pages;
@@ -16,7 +17,7 @@ use Filament\Tables\Actions\ActionGroup;
 class ProductResource extends Resource
 {
     protected static ?string $navigationIcon = 'heroicon-o-archive-box';
-    protected static ?string $navigationGroup = 'Products'; 
+    protected static ?string $navigationGroup = 'DATA MASTER';
     protected static ?string $model = Product::class;
 
     public static function form(Forms\Form $form): Forms\Form
@@ -31,14 +32,30 @@ class ProductResource extends Resource
                 TextInput::make('stock')->required()->numeric(),
                 Select::make('discount_code')
                     ->label('Diskon')
-                    ->options(function() {
-                        return \App\Models\Discount::valid()
-                            ->where('end_date', '>=', now()) 
-                            ->pluck('code', 'code')
-                            ->toArray();
+                    ->options(function () {
+                        $discounts = Discount::valid()
+                            ->where('end_date', '>=', now())
+                            ->get();
+                        
+                        $options = [];
+                        foreach ($discounts as $discount) {
+                            $typeLabel = match ($discount->type) {
+                                'percentage' => 'Persen',
+                                default => $discount->type,
+                            };
+                            
+                            $valueInfo = $discount->type === 'percentage' 
+                                ? "{$discount->value}%" 
+                                : "Rp " . number_format($discount->value, 0, ',', '.');
+                                
+                            $options[$discount->code] = "{$discount->code} - {$typeLabel} ({$valueInfo})";
+                        }
+                        
+                        return $options;
                     })
                     ->nullable()
                     ->searchable(),
+                    
                 Forms\Components\FileUpload::make('images')
                     ->label('Images')
                     ->directory('images/gallery')
@@ -59,15 +76,30 @@ class ProductResource extends Resource
                 Tables\Columns\TextColumn::make('name')->label('Nama'),
                 Tables\Columns\TextColumn::make('category.name')->label('Kategori'),
                 Tables\Columns\TextColumn::make('stock')->label('Stok')->badge(),
-                Tables\Columns\TextColumn::make('discount.code')->label('Kode Voucher')->sortable()->searchable(),
-                Tables\Columns\TextColumn::make('price')->label('Harga')->sortable()
+
+                TextColumn::make('discount_code')->label('Kode Voucher')->sortable()->searchable(),
+                TextColumn::make('discount.value')
+                    ->label('Nilai Diskon')
+                    ->getStateUsing(fn ($record) =>
+                        $record->discount
+                            ? ($record->discount->type === 'percentage'
+                                ? $record->discount->value . '%'
+                                : 'Rp ' . number_format($record->discount->value, 2, ',', '.'))
+                            : '-'
+                    ),
+                TextColumn::make('price')
+                    ->label('Harga Asli')
                     ->getStateUsing(fn($record) => 'Rp ' . number_format($record->price, 2, ',', '.')),
+
+                TextColumn::make('discounted_price')
+                    ->label('Harga Setelah Diskon')
+                    ->getStateUsing(fn($record) => 'Rp ' . number_format($record->discounted_price, 2, ',', '.')),
             ])
             ->actions([
                 ActionGroup::make([
                     Tables\Actions\EditAction::make(),
                     Tables\Actions\DeleteAction::make(),
-                ])->tooltip('Actions'),
+                ]),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -78,25 +110,20 @@ class ProductResource extends Resource
 
     public static function mutateFormDataBeforeCreate(array $data): array
     {
-        // Memeriksa jika kode diskon kadaluarsa dan menghapusnya
         return self::handleDiscountUsage($data);
     }
-    
+
     public static function mutateFormDataBeforeUpdate(array $data, Product $record): array
     {
-        // Memeriksa jika kode diskon kadaluarsa dan menghapusnya
         return self::handleDiscountUsage($data, $record);
     }
 
     public static function handleDiscountUsage(array $data, Product $record = null): array
     {
-        // Memeriksa jika kode diskon kadaluarsa
         if (isset($data['discount_code'])) {
             $discount = Discount::where('code', $data['discount_code'])->first();
             if ($discount && $discount->end_date < now()) {
-                // Jika diskon kadaluarsa, hapus kode diskon dari data produk
                 $data['discount_code'] = null;
-                // Menghapus diskon yang kadaluarsa dari database
                 $discount->delete();
             }
         }

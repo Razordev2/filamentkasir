@@ -29,7 +29,18 @@ class Order extends Model
     {
         return $this->belongsTo(PaymentMethod::class, 'payment_method_id');
     }
-
+    public function getDiscountValueAttribute()
+    {
+        if (! $this->product || ! $this->product->discount) {
+            return null;
+        }
+    
+        $discount = $this->product->discount;
+        if ($discount->type === 'percentage') {
+            return $discount->value . '%';
+        }
+        return 'Rp ' . number_format($discount->value, 2, ',', '.');
+    }
     protected static function boot()
     {
         parent::boot();

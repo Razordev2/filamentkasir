@@ -26,7 +26,6 @@ protected static function boot()
         if (empty($discount->code)) {
             $prefix = match ($discount->type) {
                 'percentage' => 'PERC',
-                'fixed' => 'FIXED',
                 default => 'DISC',
             };
             $discount->code = strtoupper($prefix . '-' . Str::random(6));
@@ -46,8 +45,6 @@ public function getDiscountedPrice($price)
 {
     if ($this->type === 'percentage') {
         return max(0, $price - ($price * $this->value / 100));
-    } elseif ($this->type === 'fixed') {
-        return max(0, $price - $this->value);
     }
     return $price;
 }

@@ -71,6 +71,7 @@ class Pos extends Component implements HasForms
                     ->required()
                     ->maxLength(255)
                     ->nullable()
+                    ->label('Customer Name (Optional)')
                     ->default(fn () => $this->name_customer),
                 
                 TextInput::make('discounted_price')
@@ -189,6 +190,7 @@ class Pos extends Component implements HasForms
                 'price' => $product->price,
                 'discount' => $discountAmount,
                 'discounted_price' => $priceAfterDiscount,
+                'total_price' => $priceAfterDiscount,
                 'image_url' => $product->image_url,
                 'quantity' => 1,
             ];
@@ -251,52 +253,84 @@ class Pos extends Component implements HasForms
             Notification::make()->title('Keranjang kosong')->danger()->send();
             return;
         }
-
+    
+        // Check product availability and stock
         foreach ($this->order_items as $item) {
             $product = Product::with('discount')->find($item['product_id']);
-
+    
             if (!$product || $item['quantity'] > $product->stock) {
                 Notification::make()->title("Produk '{$item['name']}' tidak tersedia atau stok tidak mencukupi")->danger()->send();
                 return;
             }
         }
+    
+       
         $orderItems = $this->order_items;
         $paymentMethod = PaymentMethod::find($this->payment_method_id)?->paymentmethods ?? 'Tunai';
+    
+     
         $totalBeforeDiscount = collect($orderItems)->sum(function ($item) {
             return $item['price'] * $item['quantity'];
         });
-        $totalAfterDiscount = $this->calculateTotal();
-        $discountAmount = $totalBeforeDiscount - $totalAfterDiscount;
+    
+        $totalAfterProductDiscount = collect($orderItems)->sum(function ($item) {
+            return $item['discounted_price'] * $item['quantity'];
+        });
+    
+  
+        $totalAfterGlobalDiscount = $totalAfterProductDiscount - ($totalAfterProductDiscount * ($this->discount_value / 100));
+    
+        $discountAmount = $totalBeforeDiscount - $totalAfterGlobalDiscount;
+    
+        $itemDetails = [];
+        $totalOrderPrice = 0;
+    
         foreach ($this->order_items as $item) {
             $product = Product::with('discount')->find($item['product_id']);
             $discounted_price = $product->discounted_price;
+    
+            $itemTotal = $discounted_price * $item['quantity'];
+            $totalOrderPrice += $itemTotal;
+    
+            $itemDetails[] = [
+                'product_id' => $product->id,
+                'name' => $product->name,
+                'quantity' => $item['quantity'],
+                'unit_price' => $product->price,
+                'discounted_price' => $discounted_price,
+                'discount' => $product->price - $discounted_price,
+                'subtotal' => $itemTotal
+            ];
+    
             Order::create([
                 'customer_name' => $this->name_customer,
                 'payment_method_id' => $this->payment_method_id,
                 'product_id' => $product->id,
                 'quantity' => $item['quantity'],
-                'unit_price' => $discounted_price,
                 'discount' => $product->price - $discounted_price,
                 'total_price' => $discounted_price * $item['quantity'],
                 'dateorder' => now(),
                 'member_id' => $this->member_id,
             ]);
-
+    
             $product->stock -= $item['quantity'];
             $product->save();
         }
         $this->lastOrderDetails = [
-            'items' => $orderItems,
+            'items' => $itemDetails,
             'name_customer' => $this->name_customer ?: 'Umum',
             'payment_method' => $paymentMethod,
             'total' => $totalBeforeDiscount,
-            'discount' => $discountAmount,		
-            'total_price' => $discounted_price * $item['quantity'],
-            'date' => now()->format('d-m-Y H:i'),
+            'discount' => $discountAmount,
+            'total_price' => $totalAfterGlobalDiscount,
+            'subtotal' => $itemTotal,
+            'date' => now()->format('d-m-Y H:i:s'),
         ];
+    
         $this->showReceiptModal = true;
         $this->order_items = [];
         session()->forget('orderItems');
         Notification::make()->title('Pesanan berhasil diproses!')->success()->send();
     }
+    
 }

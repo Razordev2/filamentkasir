@@ -72,7 +72,7 @@
                                 </div>
                             @endif
                         </div>
-                        <div class="p-4">
+                        <div class="p-4">   
                             <h3 class="font-medium text-gray-800 dark:text-gray-200 truncate">{{$item->name}}</h3>
                             <div class="mt-1 flex justify-between items-center">
                                 <div>
@@ -134,48 +134,117 @@
     
 </div>
 @if($showReceiptModal)
-<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg max-w-md w-full p-6">
-        <div class="flex justify-between items-center mb-4">
-            <h2 class="text-xl font-bold text-gray-800 dark:text-gray-200">Konfirmasi Cetak Struk</h2>
-            <button wire:click="closeReceiptModal" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-            </button>
-        </div>
-        
-        <div class="mb-6">
-            <p class="text-gray-700 dark:text-gray-300">Transaksi berhasil diproses! Apakah Anda ingin mencetak struk?</p>
-        </div>
-        
-        <div class="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg mb-6">
-            <h3 class="font-semibold text-gray-800 dark:text-gray-200 mb-2">Ringkasan Pembelian:</h3>
-            <div class="space-y-2">
-                <p class="text-sm text-gray-600 dark:text-gray-400">
-                    <span class="font-medium">Pelanggan:</span> {{ $lastOrderDetails['name_customer'] }}
-                </p>
-                <p class="text-sm text-gray-600 dark:text-gray-400">
-                    <span class="font-medium">Total:</span> Rp {{ number_format($lastOrderDetails['total_price'], 0, ',', '.') }}
-                </p>
-                <p class="text-sm text-gray-600 dark:text-gray-400">
-                    <span class="font-medium">Metode Pembayaran:</span> {{ $lastOrderDetails['payment_method'] }}
-                </p>
-                <p class="text-sm text-gray-600 dark:text-gray-400">
-                    <span class="font-medium">Tanggal:</span> {{ $lastOrderDetails['date'] }}
-                </p>
+<div class="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-lg w-full overflow-hidden">
+        <!-- Header -->
+        <div class="bg-blue-600 text-white p-4">
+            <div class="flex justify-between items-center">
+                <h2 class="text-xl font-bold">Konfirmasi Cetak Struk</h2>
+                <button wire:click="closeReceiptModal" class="text-white hover:text-gray-200 transition duration-150">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
             </div>
         </div>
         
-        <div class="flex justify-end space-x-2">
-            <button wire:click="closeReceiptModal" class="px-4 py-2 bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-400 dark:hover:bg-gray-500 transition duration-200">
-                Tidak
-            </button>
-            <button wire:click="printReceipt" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200">
-                Cetak Struk
-            </button>
+        <div class="p-6">
+            <div class="flex items-center mb-6 bg-green-100 dark:bg-green-900/30 p-4 rounded-lg">
+                <div class="rounded-full bg-green-500 p-2 mr-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                </div>
+                <p class="text-green-800 dark:text-green-200 font-medium">Transaksi berhasil diproses! Apakah Anda ingin mencetak struk?</p>
+            </div>
+            
+            <!-- Purchase Summary -->
+            <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg mb-6 border border-gray-200 dark:border-gray-600 overflow-auto max-h-96">
+                <h3 class="font-bold text-gray-800 dark:text-gray-200 mb-3 border-b border-gray-200 dark:border-gray-600 pb-2">Ringkasan Pembelian</h3>
+                
+                <!-- Informasi Pelanggan -->
+                <div class="mb-3">
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600 dark:text-gray-400">Pelanggan</span>
+                        <span class="font-medium text-gray-800 dark:text-gray-200">{{ $lastOrderDetails['name_customer'] }}</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600 dark:text-gray-400">Metode Pembayaran</span>
+                        <span class="font-medium text-gray-800 dark:text-gray-200">{{ $lastOrderDetails['payment_method'] }}</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-600 dark:text-gray-400">Tanggal</span>
+                        <span class="font-medium text-gray-800 dark:text-gray-200">{{ $lastOrderDetails['date'] }}</span>
+                    </div>
+                </div>
+                
+                <!-- Detail Item Pembelian -->
+                <div class="mt-4 border-t border-gray-200 dark:border-gray-600 pt-3">
+                    <h4 class="font-semibold text-gray-800 dark:text-gray-200 mb-2">Detail Item</h4>
+                    
+                    <div class="space-y-3">
+                        @foreach($lastOrderDetails['items'] as $item)
+                        <div class="flex flex-col p-2 bg-white dark:bg-gray-800 rounded-lg shadow-sm">
+                            <div class="flex justify-between">
+                                <span class="font-medium">{{ $item['name'] }}</span>
+                                <span class="text-sm">x{{ $item['quantity'] }}</span>
+                            </div>
+                            <div class="flex justify-between text-sm mt-1">
+                                <span class="text-gray-600 dark:text-gray-400">Unit Price</span>
+                                <span>Rp {{ number_format($item['unit_price'], 0, ',', '.') }}</span>
+                            </div>
+                            @if($item['discount'] > 0)
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-600 dark:text-gray-400">Diskon</span>
+                                <span class="text-red-500">- Rp {{ number_format($item['discount'], 0, ',', '.') }}</span>
+                            </div>
+                            @endif
+                            <div class="flex justify-between text-sm font-semibold mt-1 pt-1 border-t border-gray-100 dark:border-gray-700">
+                                <span>Subtotal</span>
+                                <span>Rp {{ number_format($item['subtotal'], 0, ',', '.') }}</span>
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
+                <div class="mt-4 pt-3 border-t-2 border-gray-300 dark:border-gray-600">
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-700 dark:text-gray-300">Total Sebelum Diskon</span>
+                        <span class="font-medium">Rp {{ number_format($item['subtotal'], 0, ',', '.') }}</span>
+                    </div>
+                    
+                    @if($lastOrderDetails['discount'] > 0)
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-700 dark:text-gray-300">Total Diskon</span>
+                        <span class="font-medium text-red-500">- Rp {{ number_format($lastOrderDetails['discount'], 0, ',', '.') }}</span>
+                    </div>
+                    @endif
+                    
+                    <div class="flex justify-between items-center mt-2 pt-2 border-t border-gray-200 dark:border-gray-600 font-bold text-lg">
+                        <span class="text-gray-800 dark:text-gray-200">Total</span>
+                        <span class="text-green-600 dark:text-green-400">Rp  {{ number_format($item['subtotal'], 0, ',', '.') }}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Buttons -->
+            <div class="flex justify-between space-x-4">
+                <button wire:click="closeReceiptModal" class="flex items-center justify-center w-full px-4 py-3 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition duration-200 font-medium">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Tidak
+                </button>
+                <button wire:click="printReceipt" class="flex items-center justify-center w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200 font-medium">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                    </svg>
+                    Cetak Struk
+                </button>
+            </div>
         </div>
     </div>
 </div>
 @endif
+
 </div>

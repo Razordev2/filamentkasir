@@ -8,11 +8,13 @@ use Filament\Forms;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Actions\ActionGroup;
+
 class CategoryResource extends Resource
 {
     protected static ?string $navigationIcon = 'heroicon-o-squares-2x2';
     protected static ?string $model = Category::class;
-    protected static ?string $navigationGroup = 'Products'; 
+    protected static ?string $navigationGroup = 'DATA MASTER';
+
     public static function form(Forms\Form $form): Forms\Form
     {
         return $form->schema([
@@ -24,6 +26,12 @@ class CategoryResource extends Resource
     {
         return $table->columns([
             Tables\Columns\TextColumn::make('name'),
+        ])
+        ->actions([
+            ActionGroup::make([
+                Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
+            ]),
         ]);
     }
 
@@ -33,8 +41,10 @@ class CategoryResource extends Resource
             'index' => Pages\ListCategories::route('/'),
         ];
     }
+
     public static function getNavigationBadge(): ?string
     {
         return static::getModel()::count();
     }
 }
+

@@ -10,10 +10,14 @@ class Product extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'category_id', 'price', 'stock', 'discount_code', 'images', 'points_required'];
+protected $fillable = ['name', 'category_id', 'price', 'stock', 'discount_code', 'images', 'points_required'];
 
     protected $appends = ['discounted_price', 'image_url'];
-
+    
+    public function inventoryLogs()
+    {
+        return $this->hasMany(InventoryLogs::class, 'product_id');
+    }
     public function category()
     {
         return $this->belongsTo(Category::class);

@@ -21,8 +21,6 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
-
-// Tambahkan ini kalau belum
 use App\Filament\Widgets\StatsOverview;
 use App\Filament\Widgets\ProductFavorite;
 use App\Filament\Widgets\ProductReady;
@@ -42,11 +40,6 @@ class UserPanelProvider extends PanelProvider
             ->brandLogo(fn () => view('logo'))
             ->colors([
                 'primary' => Color::Indigo,
-                'danger' => Color::Rose,
-                'gray' => Color::Gray,
-                'info' => Color::Blue,
-                'success' => Color::Emerald,
-                'warning' => Color::Orange,
             ])
             ->renderHook(
                 'panels::user-menu.after',
@@ -60,8 +53,6 @@ class UserPanelProvider extends PanelProvider
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
                 StatsOverview::class,
-                ProductFavorite::class,
-                ProductReady::class,
                 StastikOmset::class,
             ])
             ->plugins([
